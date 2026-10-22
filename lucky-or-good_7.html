@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucky or Good?</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  :root{--purple:#3F1F69;--ink:#1E1E1E;--paper:#F4F2EE;--muted:#6b6b6b;--line:#d9d4cc;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Source Serif 4",Georgia,serif;background:var(--paper);color:var(--ink);line-height:1.5}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px;position:relative;overflow:hidden}
+  .q{position:absolute;right:-60px;top:-80px;font-size:520px;font-weight:700;color:var(--purple);opacity:.05;line-height:1;pointer-events:none;user-select:none}
+  h1{font-size:56px;margin:0;color:var(--purple);font-weight:700;line-height:1.05}
+  .sub{font-size:22px;margin:8px 0 28px;color:var(--muted)}
+  form{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  input{flex:1;min-width:240px;font:inherit;font-size:18px;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:#fff}
+  button{font:inherit;font-size:18px;padding:12px 22px;border:0;border-radius:8px;background:var(--purple);color:#fff;cursor:pointer}
+  button:disabled{opacity:.5;cursor:wait}
+  .hint{font-size:14px;color:var(--muted);margin:0 0 30px}
+  .err{color:#a1261b;margin:10px 0}
+  .picker{margin:16px 0 30px}
+  .picker label{display:block;margin:6px 0}
+  select{font:inherit;font-size:17px;padding:8px;border:1.5px solid var(--line);border-radius:8px;background:#fff}
+  h2{font-size:28px;margin:40px 0 10px;color:var(--purple)}
+  .quad{position:relative;width:100%;aspect-ratio:1/1;max-width:640px;margin:0 auto;border:2px solid var(--purple);background:#fff}
+  .quad .v,.quad .h{position:absolute;background:var(--purple)}
+  .quad .v{left:50%;top:0;width:2px;height:100%}
+  .quad .h{top:50%;left:0;height:2px;width:100%}
+  .band{position:absolute;background:rgba(63,31,105,.08);pointer-events:none}
+  .band.hb{left:0;width:100%}
+  .band.vb{top:0;height:100%}
+  .mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;background:#fff;color:var(--purple);font-size:12px;font-weight:600;padding:2px 8px;border:1px solid var(--purple);border-radius:12px;white-space:nowrap;pointer-events:none}
+  .ylab{position:absolute;left:0;writing-mode:vertical-rl;transform:translate(calc(-100% - 8px),-50%) rotate(180deg);transform-origin:center;z-index:3;color:var(--purple);font-size:13px;font-weight:600;letter-spacing:.04em;white-space:nowrap;pointer-events:none}
+  .ylab{top:50%}
+  @media(max-width:700px){.quad{margin-left:28px;width:calc(100% - 28px)}.axis{margin-left:28px}}
+  .lbl{position:absolute;z-index:2;font-weight:600;color:var(--purple);font-size:clamp(12px,2.4vw,18px);padding:8px}
+  .lbl small{display:block;font-weight:400;color:var(--muted);font-size:.8em}
+  .tl{left:0;top:0}.tr{right:0;top:0;text-align:right}.bl{left:0;bottom:0}.br{right:0;bottom:0;text-align:right}
+  .dot{position:absolute;z-index:1;width:12px;height:12px;border-radius:50%;background:var(--muted);transform:translate(-50%,-50%);cursor:default}
+  .dot.me{background:var(--purple);width:18px;height:18px;box-shadow:0 0 0 4px rgba(63,31,105,.2)}
+  .dot span{position:absolute;left:14px;top:-4px;white-space:nowrap;font-size:12px;color:var(--ink);background:transparent;padding:0}
+  .dot{cursor:pointer}
+  .dot.sel{outline:2px solid var(--ink);outline-offset:2px}
+  .dot .tip{display:none;position:absolute;left:16px;top:14px;z-index:5;background:var(--ink);color:#fff;font-size:13px;line-height:1.35;padding:8px 10px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .dot:hover .tip{display:block}
+  .dot:hover{z-index:4}
+  .axis{display:flex;justify-content:space-between;max-width:640px;margin:6px auto 0;font-size:14px;color:var(--muted)}
+  .axis b{color:var(--ink)}
+  .axis>span:nth-child(2){text-align:center}
+  .axis2{display:block;color:var(--purple);font-weight:600;font-size:13px;letter-spacing:.04em}
+  .card{border:2px solid var(--purple);border-radius:12px;padding:22px 26px;margin:30px auto;max-width:640px;background:#fff}
+  .card .rule{font-size:34px;font-weight:700;color:var(--purple);margin:0 0 6px}
+  .card p{margin:4px 0;font-size:18px}
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:16px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--purple);font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.me td{background:#efe9f6;font-weight:600}
+  tr.line td{border-bottom:2px dashed var(--purple)}
+  .foot{margin-top:50px;font-size:15px;color:var(--muted)}
+  .foot p{margin:6px 0}
+  .sig{color:var(--purple);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="q">Q</div>
+  <h1>Lucky or Good?</h1>
+  <p class="sub">Find out what your record isn't telling you.</p>
+
+  <form id="f">
+    <input id="inp" placeholder="Sleeper username or league ID" autocomplete="off">
+    <button id="go" type="submit">Check my league</button>
+  </form>
+  <p class="hint">Sleeper leagues only, for now. Nothing to log in to; we only read public league data.</p>
+  <div id="err" class="err"></div>
+  <div id="picker" class="picker"></div>
+  <div id="out"></div>
+
+  <div class="foot">
+    <h2>How this works</h2>
+    <p><b>Points per game</b> is what your team actually scores. <b>The playoff line</b> is the points per game of the last team that would make your league's playoffs if the season ended today.</p>
+    <p><b>Expected wins</b> is how many games you'd have won if you played every team every week. <b>Luck</b> is your real wins minus that number. Positive means the schedule has been kind.</p>
+    <p>Teams in the shaded band around either line get <b>On the bubble</b>, because they are at the mercy of Lady Luck.</p>
+    <p>Read the essay: <a href="https://claude.ai/artifact/2rWhBoXwo1wLJwFdt3QDxV">Points Over Record</a></p>
+    <p class="sig">@Quids_FF</p>
+  </div>
+</div>
+
+<script>
+const API="https://api.sleeper.app/v1";
+const BUBBLE=0.03;
+const $=s=>document.querySelector(s);
+const RULES={
+  good_win:["Don't get cute","Good and winning. The standings know it."],
+  good_lose:["Hold steady","Good but losing. The wins are coming."],
+  bad_win:["You're a lucky duck","You're winning because you're lucky. Consider making some changes to improve your point scoring."],
+  bad_lose:["Things aren't looking good","The record is telling the truth. Consider swinging for the fences."],
+  bubble:["On the bubble","You're within a hair of the line. May luck be in your favor."]
+};
+
+async function j(u){const r=await fetch(u);if(!r.ok)throw new Error("Sleeper said "+r.status);return r.json();}
+
+$("#f").addEventListener("submit",async e=>{
+  e.preventDefault();$("#err").textContent="";$("#picker").innerHTML="";$("#out").innerHTML="";
+  const v=$("#inp").value.trim();if(!v)return;
+  $("#go").disabled=true;
+  try{
+    if(/^\d{10,}$/.test(v)){await run(v,null);}
+    else{
+      const u=await j(`${API}/user/${encodeURIComponent(v)}`);
+      if(!u)throw new Error("No Sleeper user with that name.");
+      const st=await j(`${API}/state/nfl`);
+      const ls=await j(`${API}/user/${u.user_id}/leagues/nfl/${st.league_season||st.season}`);
+      if(!ls.length)throw new Error("That user has no leagues this season.");
+      if(ls.length===1){await run(ls[0].league_id,u.user_id);}
+      else{
+        const p=$("#picker");p.innerHTML="<label>Which league?</label>";
+        const s=document.createElement("select");
+        ls.forEach(l=>{const o=document.createElement("option");o.value=l.league_id;o.textContent=l.name;s.appendChild(o);});
+        const b=document.createElement("button");b.textContent="Go";b.style.marginLeft="8px";
+        b.onclick=()=>run(s.value,u.user_id);
+        p.appendChild(s);p.appendChild(b);
+      }
+    }
+  }catch(x){$("#err").textContent=x.message;}
+  $("#go").disabled=false;
+});
+
+async function run(leagueId,userId){
+  $("#out").innerHTML="<p>Crunching…</p>";
+  const [league,rosters,users,state]=await Promise.all([
+    j(`${API}/league/${leagueId}`),j(`${API}/league/${leagueId}/rosters`),
+    j(`${API}/league/${leagueId}/users`),j(`${API}/state/nfl`)]);
+  const lastWeek=Math.min(state.week-1||0,league.settings.playoff_week_start-1||18);
+  const weeks=[];for(let w=1;w<=lastWeek;w++)weeks.push(w);
+  const mus=await Promise.all(weeks.map(w=>j(`${API}/league/${leagueId}/matchups/${w}`)));
+  const uof=rid=>{const r=rosters.find(r=>r.roster_id===rid);return users.find(u=>u.user_id===r?.owner_id);};
+  const name=rid=>{const u=uof(rid);return (u?.metadata?.team_name)||u?.display_name||("Team "+rid);};
+  const uname=rid=>{const u=uof(rid);return u?.display_name||("Team "+rid);};
+  const T={};rosters.forEach(r=>T[r.roster_id]={id:r.id=r.roster_id,name:name(r.roster_id),user:uname(r.roster_id),owner:r.owner_id,pts:[],w:0,l:0,exp:0});
+  mus.forEach(week=>{
+    const played=week.filter(m=>m.points!=null&&m.matchup_id!=null);
+    if(!played.length)return;
+    played.forEach(m=>T[m.roster_id].pts.push(m.points));
+    const byM={};played.forEach(m=>(byM[m.matchup_id]=byM[m.matchup_id]||[]).push(m));
+    Object.values(byM).forEach(pair=>{if(pair.length===2){const[a,b]=pair;if(a.points>b.points){T[a.roster_id].w++;T[b.roster_id].l++;}else if(b.points>a.points){T[b.roster_id].w++;T[a.roster_id].l++;}}});
+    const n=played.length;played.forEach(m=>{T[m.roster_id].exp+=played.filter(o=>o.roster_id!==m.roster_id&&m.points>o.points).length/(n-1);});
+  });
+  const teams=Object.values(T).filter(t=>t.pts.length);
+  if(!teams.length){$("#out").innerHTML="<p>No completed weeks yet.</p>";return;}
+  teams.forEach(t=>{t.g=t.pts.length;t.ppg=t.pts.reduce((a,b)=>a+b,0)/t.g;t.luck=t.w-t.exp;t.pct=t.w/(t.w+t.l||1);});
+  teams.sort((a,b)=>b.ppg-a.ppg);
+  const spots=league.settings.playoff_teams||6;
+  const line=teams[Math.min(spots,teams.length)-1].ppg;
+  const maxP=Math.max(...teams.map(t=>t.ppg)),minP=Math.min(...teams.map(t=>t.ppg));
+  teams.forEach(t=>{
+    const nearP=Math.abs(t.ppg-line)/line<=BUBBLE, nearR=Math.abs(t.pct-0.5)<=BUBBLE+0.05/ t.g;
+    const good=t.ppg>=line, win=t.pct>0.5;
+    t.key=(nearP||nearR)?"bubble":(good?(win?"good_win":"good_lose"):(win?"bad_win":"bad_lose"));
+  });
+  const me=userId?teams.find(t=>t.owner===userId):null;
+  let h=`<h2>${league.name}</h2><p class="hint">Through week ${lastWeek}. Playoff line: <b>${line.toFixed(1)} PPG</b> (${spots} playoff spots).</p>`;
+  h+=`<div class="quad"><div class="v"></div><div class="h"></div>
+    <div class="lbl tl">Hold steady<small>Above the line, losing</small></div>
+    <div class="lbl tr">Don't get cute<small>Above the line, winning</small></div>
+    <div class="lbl bl">Things aren't looking good<small>Below the line, losing</small></div>
+    <div class="lbl br">You're a lucky duck<small>Below the line, winning</small></div>`;
+  const span=Math.max(maxP-line,line-minP)||1;
+  const g=teams[0].g, yb=(BUBBLE*line/span)*45, xb=(BUBBLE+0.05/g)*90;
+  h+=`<div class="band hb" style="top:${50-yb}%;height:${2*yb}%"></div><div class="band vb" style="left:${50-xb}%;width:${2*xb}%"></div>
+    <div class="mid">Playoff cutoff · ${line.toFixed(1)} PPG</div><div class="ylab">Scoring like a playoff team &rarr;</div>`;
+  teams.forEach(t=>{
+    const x=50+(t.pct-0.5)*90, y=50-((t.ppg-line)/span)*45;
+    h+=`<div class="dot ${me&&t===me?"me":""}" data-i="${teams.indexOf(t)}" style="left:${x}%;top:${y}%"><span>${t.user}</span><div class="tip"><b>${t.name}</b><br>${t.ppg.toFixed(1)} PPG · ${t.w}-${t.l}<br>Luck ${t.luck>=0?"+":""}${t.luck.toFixed(1)}</div></div>`;
+  });
+  h+=`</div><div class="axis"><span><b>Losing</b></span><span>Record<br><span class="axis2">Winning like a playoff team &rarr;</span></span><span><b>Winning</b></span></div>`;
+  h+=`<div class="card" id="card"></div>`;
+  h+=`<h2>Whole league, by points</h2><table><tr><th>#</th><th>Manager</th><th class="num">Record</th><th class="num">PPG</th><th class="num">Exp. wins</th><th class="num">Luck</th><th>Assessment</th></tr>`;
+  teams.forEach((t,i)=>{h+=`<tr class="${me&&t===me?"me":""} ${i===spots-1?"line":""}"><td>${i+1}</td><td title="${t.name}">${t.user}</td><td class="num">${t.w}-${t.l}</td><td class="num">${t.ppg.toFixed(1)}</td><td class="num">${t.exp.toFixed(1)}</td><td class="num">${t.luck>=0?"+":""}${t.luck.toFixed(1)}</td><td>${RULES[t.key][0]}</td></tr>`;});
+  h+=`</table>`;
+  $("#out").innerHTML=h;
+  const show=t=>{const[r,d]=RULES[t.key];
+    $("#card").innerHTML=`<p class="hint" style="margin:0">Assessment${me&&t===me?"":" · click your dot to return to yours"}</p><p class="rule">${r}</p><p>${d}</p><p><b>${t.user}</b> (${t.name}): ${t.w}-${t.l}, ${t.ppg.toFixed(1)} PPG, expected wins ${t.exp.toFixed(1)}, luck ${t.luck>=0?"+":""}${t.luck.toFixed(1)}.</p>`;
+    document.querySelectorAll(".dot").forEach(d=>d.classList.toggle("sel",teams[+d.dataset.i]===t));};
+  document.querySelectorAll(".dot").forEach(d=>d.addEventListener("click",()=>show(teams[+d.dataset.i])));
+  show(me||teams[0]);
+}
+</script>
+</body>
+</html>
